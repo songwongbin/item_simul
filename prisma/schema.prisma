@@ -1,0 +1,94 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql" // mysql 사용
+  url      = env("DATABASE_URL")
+}
+
+// Accounts 테이블 : 계정 정보
+model Accounts {
+  accountKey Int @id @default(autoincrement()) @map("accountKey")
+  id String @unique @map("id")
+  pw String @map("pw")
+  pwCheck String @map("pwCheck")
+  name String @map("name")
+  signupAt DateTime @default(now()) @map("signupAt")
+
+  char Characters[] // 1:N
+
+
+  @@map("Accounts")
+}
+
+// Characters 테이블 : 캐릭터 정보
+model Characters {
+  charKey Int @id @default(autoincrement()) @map("charKey")
+  accountKey Int @map("accountKey") // Account 테이블과 관계
+  name String @unique @map("name")
+  stats Json @map("stats")
+  money Int @default(10000) @map("money")
+  createdAt DateTime @default(now()) @map("createdAt")
+
+  account Accounts @relation(fields: [accountKey], references: [accountKey], onDelete: Cascade)
+
+  inven Inventory[] // 1:N 관계
+  equip Equips[] // 1:N 관계
+
+  @@map("Characters")
+}
+
+// Items 테이블 : 아이템 정보
+model Items {
+  itemCode Int @id @default(autoincrement()) @map("itemCode")
+  name String @map("name")
+  stats Json @map("stats")
+  price Int @map("price")
+  description String @db.Text @map("description")
+  createdAt DateTime @default(now()) @map("createdAt")
+  updatedAt DateTime @updatedAt @map("updatedAt")
+
+  inven Inventory? // 1:1 관계
+  equip Equips? // 1:1 관계
+
+  @@map("Items")
+}
+
+// Inventory 테이블 : 인벤토리 정보
+model Inventory {
+  invenKey Int  @id @default(autoincrement()) @map("invenKey")
+  itemCode Int @unique @map("itemCode")
+  charKey Int @map("charKey")
+  name String @map("name") 
+  stats Json @map("stats") 
+  price Int @map("price") 
+  description String @db.Text @map("description")
+  count Int @default(1) @map("count")
+
+  item Items @relation(fields: [itemCode], references: [itemCode], onDelete: Cascade, onUpdate: Cascade)
+  char Characters @relation(fields: [charKey],references: [charKey],onDelete: Cascade)
+
+  @@map("Inventory")
+}
+
+// Equips 테이블 : 장착아이템 정보
+model Equips {
+  equipKey Int @id @default(autoincrement()) @map("equipKey")
+  itemCode Int @unique @map("itemCode")
+  charKey Int @map("charKey")
+  name String @map("name") 
+  stats Json @map("stats") 
+  description String @db.Text @map("description")
+
+  item Items @relation(fields: [itemCode], references: [itemCode], onDelete: Cascade, onUpdate: Cascade)
+  char Characters @relation(fields: [charKey],references: [charKey],onDelete: Cascade)
+
+  @@map("Equips")
+}
