@@ -18,12 +18,10 @@ model Accounts {
   accountKey Int @id @default(autoincrement()) @map("accountKey")
   id String @unique @map("id")
   pw String @map("pw")
-  pwCheck String @map("pwCheck")
   name String @map("name")
   signupAt DateTime @default(now()) @map("signupAt")
 
   char Characters[] // 1:N
-
 
   @@map("Accounts")
 }
@@ -47,11 +45,11 @@ model Characters {
 
 // Items 테이블 : 아이템 정보
 model Items {
-  itemCode Int @id @default(autoincrement()) @map("itemCode")
+  itemKey Int @id @default(autoincrement()) @map("itemKey")
+  itemCode Int @unique @map("itemCode") // 세자리수, 1로 시작하면 장신구, 2로 시작하면 방어구, 3으로 시작하면 무기 아이템
   name String @map("name")
   stats Json @map("stats")
   price Int @map("price")
-  description String @db.Text @map("description")
   createdAt DateTime @default(now()) @map("createdAt")
   updatedAt DateTime @updatedAt @map("updatedAt")
 
@@ -64,15 +62,15 @@ model Items {
 // Inventory 테이블 : 인벤토리 정보
 model Inventory {
   invenKey Int  @id @default(autoincrement()) @map("invenKey")
-  itemCode Int @unique @map("itemCode")
+  itemKey Int @unique @map("itemKey")
   charKey Int @map("charKey")
+  itemCode Int @map("itemCode")
   name String @map("name") 
   stats Json @map("stats") 
   price Int @map("price") 
-  description String @db.Text @map("description")
   count Int @default(1) @map("count")
 
-  item Items @relation(fields: [itemCode], references: [itemCode], onDelete: Cascade, onUpdate: Cascade)
+  item Items @relation(fields: [itemKey], references: [itemKey], onDelete: Cascade, onUpdate: Cascade)
   char Characters @relation(fields: [charKey],references: [charKey],onDelete: Cascade)
 
   @@map("Inventory")
@@ -81,13 +79,13 @@ model Inventory {
 // Equips 테이블 : 장착아이템 정보
 model Equips {
   equipKey Int @id @default(autoincrement()) @map("equipKey")
-  itemCode Int @unique @map("itemCode")
+  itemKey Int @unique @map("itemKey")
   charKey Int @map("charKey")
+  itemCode Int @map("itemCode")
   name String @map("name") 
   stats Json @map("stats") 
-  description String @db.Text @map("description")
 
-  item Items @relation(fields: [itemCode], references: [itemCode], onDelete: Cascade, onUpdate: Cascade)
+  item Items @relation(fields: [itemKey], references: [itemKey], onDelete: Cascade, onUpdate: Cascade)
   char Characters @relation(fields: [charKey],references: [charKey],onDelete: Cascade)
 
   @@map("Equips")
