@@ -31,7 +31,7 @@ model Characters {
   charKey Int @id @default(autoincrement()) @map("charKey")
   accountKey Int @map("accountKey") // Account 테이블과 관계
   name String @unique @map("name")
-  stats Json @map("stats")
+  stats Json @default("{\"hp\":500,\"pow\":100}") @map("stats")
   money Int @default(10000) @map("money")
   createdAt DateTime @default(now()) @map("createdAt")
 
