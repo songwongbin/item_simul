@@ -4,6 +4,7 @@ import accountRouter from "./routes/account-router.js";
 import charRouter from "./routes/char-router.js";
 import itemRouter from "./routes/item-router.js";
 import buyAndSellRouter from "./routes/buy&sell-router.js";
+import invenAndEquipRouter from "./routes/inven&equip-router.js";
 
 /* express 생성 */
 const app = express();
@@ -14,7 +15,7 @@ app.use(express.json()); // 바디 파서
 app.use(cookieParser()); // 쿠키 파서
 
 /* 라우터 경로 배정 */
-app.use("/api", [accountRouter, charRouter, itemRouter, buyAndSellRouter]);
+app.use("/api", [accountRouter, charRouter, itemRouter, buyAndSellRouter, invenAndEquipRouter]);
 
 /* 서버 오픈 알리미 */
 app.listen(PORT, () => {

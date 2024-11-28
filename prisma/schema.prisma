@@ -62,9 +62,10 @@ model Items {
 // Inventory 테이블 : 인벤토리 정보
 model Inventory {
   invenKey Int  @id @default(autoincrement()) @map("invenKey")
-  itemKey Int @map("itemKey")
-  charKey Int @map("charKey")
+  itemKey Int @map("itemKey") // Items 테이블과 관계
+  charKey Int @map("charKey") // Characters 테이블과 관계
   itemCode Int @map("itemCode")
+  name String @map("name") 
   count Int @default(1) @map("count")
 
   item Items @relation(fields: [itemKey], references: [itemKey], onDelete: Cascade, onUpdate: Cascade)
@@ -76,9 +77,11 @@ model Inventory {
 // Equips 테이블 : 장착아이템 정보
 model Equips {
   equipKey Int @id @default(autoincrement()) @map("equipKey")
-  itemKey Int @map("itemKey")
-  charKey Int @map("charKey")
+  itemKey Int @map("itemKey") // Items 테이블과 관계
+  charKey Int @map("charKey") // Characters 테이블과 관계
   itemCode Int @map("itemCode")
+  name String @map("name") 
+
 
   item Items @relation(fields: [itemKey], references: [itemKey], onDelete: Cascade, onUpdate: Cascade)
   char Characters @relation(fields: [charKey],references: [charKey],onDelete: Cascade)
