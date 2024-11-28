@@ -12,38 +12,38 @@ const router = express.Router();
 router.put("/buy/:charKey", authMW, async (req, res, next) => {
   const { charKey } = req.params;
   const { accountKey } = req.user;
-  // 검사 01 : 존재하는 캐릭터인지 확인
+  // [검사 01] : 존재하는 캐릭터인지 확인
   const checkChar = await prisma.characters.findFirst({
     where: { charKey: +charKey },
   });
   if (!checkChar) {
     return res.status(404).json({ message: "존재하지 않는 캐릭터에요!!" });
   }
-  // 검사 02 : 내 계정의 캐릭터인지 확인
+  // [검사 02] : 내 계정의 캐릭터인지 확인
   if (checkChar.accountKey !== accountKey) {
     return res.status(403).json({ message: "당신 캐릭터가 아녀요!!" });
   }
-  // 여러 개 구매 처리 위한 반복문
+  // [1] 여러 개 구매 처리 위한 루프 설정
   for (let buyWhat of req.body) {
     const { itemCode, count } = buyWhat;
     const whichChar = await prisma.characters.findFirst({
       where: { charKey: +charKey },
     });
-    // 검사 03 : 존재하는 아이템인지 확인
+    // [검사 03] : 존재하는 아이템인지 확인
     const checkItem = await prisma.items.findFirst({
       where: { itemCode },
     });
     if (!checkItem) {
       return res.status(404).json({ message: "존재하지 않는 아이템이에요!!" });
     }
-    // 검사 04 : 보유 재화로 구매 비용 지불할 수 있는지 확인
+    // [검사 04] : 보유 재화로 구매 비용 지불할 수 있는지 확인
     const cost = checkItem.price * count;
     if (cost > whichChar.money) {
       return res.status(400).json({ message: "재화가 부족해요!!!" });
     }
-    // 구매 절차 트랜잭션
+    // [2] 구매 절차 트랜잭션
     await prisma.$transaction(async (tx) => {
-      // 내 캐릭터의 인벤토리에 요청한 아이템이 있는지 확인
+      // [2-1] 내 캐릭터의 인벤토리에 요청한 아이템이 있는지 확인
       const checkInven = await tx.inventory.findFirst({
         where: { charKey: +charKey, itemCode },
         select: {
@@ -51,13 +51,14 @@ router.put("/buy/:charKey", authMW, async (req, res, next) => {
           count: true,
         },
       });
-      // 없는 아이템이면 새로 생성, 있는 아이템이면 구매 수량만큼 count 증가
+      // [2-2] 없는 아이템이면 새로 생성, 있는 아이템이면 구매 수량만큼 count 증가
       if (!checkInven) {
         await tx.inventory.create({
           data: {
             itemKey: checkItem.itemKey,
             charKey: whichChar.charKey,
             itemCode,
+            name: checkItem.name,
             count,
           },
         });
@@ -70,7 +71,7 @@ router.put("/buy/:charKey", authMW, async (req, res, next) => {
           },
         });
       }
-      // 캐릭터 보유 재화에서 총 비용만큼 감소
+      // [2-3] 캐릭터 보유 재화에서 총 비용만큼 감소
       await tx.characters.update({
         where: { charKey: +charKey },
         data: {
@@ -79,14 +80,14 @@ router.put("/buy/:charKey", authMW, async (req, res, next) => {
       });
     });
   }
-  // 보유 재화 다시 조회
+  // [3] 보유 재화 다시 조회
   const leftMoney = await prisma.characters.findFirst({
     where: { charKey: +charKey },
     select: {
       money: true,
     },
   });
-  // 구매 후 잔액 응답
+  // [4] 구매 후 잔액 응답
   return res.status(201).json({ data: leftMoney.money });
 });
 
@@ -130,7 +131,7 @@ router.put("/sell/:charKey", authMW, async (req, res, next) => {
     } else if (checkInven) {
       // [1-3] 판매 절차 트랜잭션 시작
       await prisma.$transaction(async (tx) => {
-        // 보유 중인 아이템이면 판매 수량만큼 count 감소
+        // [1-4] 보유 중인 아이템이면 판매 수량만큼 count 감소
         const currentCount = checkInven.count;
         await tx.inventory.update({
           where: { invenKey: checkInven.invenKey },
