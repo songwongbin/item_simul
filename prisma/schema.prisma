@@ -53,8 +53,8 @@ model Items {
   createdAt DateTime @default(now()) @map("createdAt")
   updatedAt DateTime @updatedAt @map("updatedAt")
 
-  inven Inventory? // 1:1 관계
-  equip Equips? // 1:1 관계
+  inven Inventory[] // 1:N 관계
+  equip Equips[] // 1:N 관계
 
   @@map("Items")
 }
@@ -62,12 +62,9 @@ model Items {
 // Inventory 테이블 : 인벤토리 정보
 model Inventory {
   invenKey Int  @id @default(autoincrement()) @map("invenKey")
-  itemKey Int @unique @map("itemKey")
+  itemKey Int @map("itemKey")
   charKey Int @map("charKey")
   itemCode Int @map("itemCode")
-  name String @map("name") 
-  stats Json @map("stats") 
-  price Int @map("price") 
   count Int @default(1) @map("count")
 
   item Items @relation(fields: [itemKey], references: [itemKey], onDelete: Cascade, onUpdate: Cascade)
@@ -79,11 +76,9 @@ model Inventory {
 // Equips 테이블 : 장착아이템 정보
 model Equips {
   equipKey Int @id @default(autoincrement()) @map("equipKey")
-  itemKey Int @unique @map("itemKey")
+  itemKey Int @map("itemKey")
   charKey Int @map("charKey")
   itemCode Int @map("itemCode")
-  name String @map("name") 
-  stats Json @map("stats") 
 
   item Items @relation(fields: [itemKey], references: [itemKey], onDelete: Cascade, onUpdate: Cascade)
   char Characters @relation(fields: [charKey],references: [charKey],onDelete: Cascade)
