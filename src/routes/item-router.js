@@ -38,11 +38,11 @@ router.post("/items", async (req, res, next) => {
 });
 
 /* 아이템 수정 API */
-router.post("/items/:itemcode", async (req, res, next) => {
+router.put("/items/:itemcode", async (req, res, next) => {
   const { name, stats } = req.body; // body 정보 수령
   const itemCode = req.params["itemcode"]; // 매개 경로변수 수령
   // 검사 01 : 존재하는 아이템인지 확인
-  const isItemExist = await prisma.characters.findFirst({
+  const isItemExist = await prisma.items.findFirst({
     where: { itemCode: +itemCode },
   });
   if (!isItemExist) {
@@ -78,7 +78,7 @@ router.get("/items", async (req, res, next) => {
 router.get("/items/:itemCode", async (req, res, next) => {
   const itemCode = req.params["itemCode"]; // 매개 경로변수 수령
   // 검사 01 : 존재하는 아이템인지 확인
-  const isItemExist = await prisma.characters.findFirst({
+  const isItemExist = await prisma.items.findFirst({
     where: { itemCode: +itemCode },
   });
   if (!isItemExist) {
