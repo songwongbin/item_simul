@@ -17,10 +17,11 @@ app.use(cookieParser()); // 쿠키 파서
 
 /* 라우터 경로 배정 */
 app.use("/api", [accountRouter, charRouter, itemRouter, buyAndSellRouter, invenAndEquipRouter]);
-/* 예기치 못 한 오류 알려주는 미들웨어 */
-app.use(errorMW);
 
 /* 서버 오픈 알리미 */
 app.listen(PORT, () => {
   console.log(PORT, "포트로 서버 열림!");
 });
+
+/* 예기치 못 한 오류 알려주는 미들웨어 */
+app.use(errorMW);
