@@ -17,21 +17,21 @@ function validateToken(token, secretKey) {
 export default async function (req, res, next) {
   try {
     const { authorization } = req.headers; // authorization 헤더에서 토큰 받아옴
-    // 검사 01 : 토큰 발급 여부 확인 (또는 만료 여부)
+    // [검사 01] : 토큰 발급 여부 확인 (또는 만료 여부)
     if (!authorization) {
       throw new Error("오류1 : 요청한 계정의 토큰이 없수!!");
     }
-    // 검사 02 : 받아온 정보 토큰타입과 토큰내용으로 분리 후 타입 체크
+    // [검사 02] : 받아온 정보 토큰타입과 토큰내용으로 분리 후 타입 체크
     const [tokenType, token] = authorization.split(" ");
     if (tokenType !== "Bearer") {
       throw new Error("오류2 : 토큰 타입이 잘못됐슈!!");
     }
-    // 검사 03 : 토큰 해독해서 페이로드 가져오고 내용 존재 여부 체크 (또는 비밀 키 일치 여부)
+    // [검사 03] : 토큰 해독해서 페이로드 가져오고 내용 존재 여부 체크 (또는 비밀 키 일치 여부)
     const payload = validateToken(token, ATSK);
     if (!payload) {
       throw new Error("오류3 : 이상한 토큰임!!!"); // 정확한 에러 원인 알려주지 마쇼
     }
-    // 검사 04: 페이로드에서 id 꺼낸 후 계정 테이블에서 그 사용자 있는지 찾기
+    // [검사 04]: 페이로드에서 id 꺼낸 후 계정 테이블에서 그 사용자 있는지 찾기
     const { id } = payload;
     const account = await prisma.accounts.findFirst({
       where: { id },
